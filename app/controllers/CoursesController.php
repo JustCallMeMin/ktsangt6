@@ -127,28 +127,43 @@ class CoursesController extends Controller {
 
                 $studentId = trim($_POST['student_id']);
                 $courseId = trim($_POST['course_id']);
-
+                
                 // Kiểm tra xem sinh viên đăng nhập có khớp với form submit không
                 if($studentId != $_SESSION['user_id']) {
                     flash('register_message', 'Không thể hủy đăng ký cho sinh viên khác', 'alert alert-danger');
-                    redirect('courses');
+                    redirect('courses/myRegistrations');
+                    return;
+                }
+
+                // Kiểm tra xem học phần có tồn tại không
+                if(!$this->courseModel->getCourseById($courseId)) {
+                    flash('register_message', 'Học phần không tồn tại', 'alert alert-danger');
+                    redirect('courses/myRegistrations');
+                    return;
+                }
+
+                // Kiểm tra xem sinh viên có đăng ký học phần này không
+                if(!$this->courseModel->isStudentRegistered($studentId, $courseId)) {
+                    flash('register_message', 'Bạn chưa đăng ký học phần này', 'alert alert-danger');
+                    redirect('courses/myRegistrations');
                     return;
                 }
 
                 // Unregister from course
-                if($this->courseModel->unregisterCourse($studentId, $courseId)) {
+                try {
+                    $this->courseModel->unregisterCourse($studentId, $courseId);
                     flash('register_message', 'Hủy đăng ký học phần thành công', 'alert alert-success');
-                    redirect('courses/myRegistrations/' . $studentId);
-                } else {
-                    throw new Exception('Không thể hủy đăng ký học phần');
+                } catch (Exception $e) {
+                    flash('register_message', 'Lỗi: ' . $e->getMessage(), 'alert alert-danger');
                 }
+                redirect('courses/myRegistrations');
             } else {
-                redirect('courses');
+                redirect('courses/myRegistrations');
             }
         } catch (Exception $e) {
             error_log('Lỗi hủy đăng ký học phần: ' . $e->getMessage());
             flash('register_message', 'Không thể hủy đăng ký học phần: ' . $e->getMessage(), 'alert alert-danger');
-            redirect('courses');
+            redirect('courses/myRegistrations');
         }
     }
 
@@ -171,33 +186,48 @@ class CoursesController extends Controller {
                 // Kiểm tra xem sinh viên đăng nhập có khớp với form submit không
                 if($studentId != $_SESSION['user_id']) {
                     flash('register_message', 'Không thể hủy đăng ký cho sinh viên khác', 'alert alert-danger');
-                    redirect('courses');
+                    redirect('courses/myRegistrations');
                     return;
                 }
                 
                 $courses = $this->courseModel->getStudentCourses($studentId);
+                
+                // Nếu không có học phần nào đã đăng ký
+                if(empty($courses)) {
+                    flash('register_message', 'Bạn chưa đăng ký học phần nào', 'alert alert-warning');
+                    redirect('courses/myRegistrations');
+                    return;
+                }
 
                 $success = true;
+                $errorMessage = '';
                 foreach($courses as $course) {
-                    if(!$this->courseModel->unregisterCourse($studentId, $course->MaHP)) {
+                    try {
+                        if(!$this->courseModel->unregisterCourse($studentId, $course->MaHP)) {
+                            $success = false;
+                            $errorMessage = 'Không thể hủy đăng ký học phần: ' . $course->TenHP;
+                            break;
+                        }
+                    } catch (Exception $e) {
                         $success = false;
+                        $errorMessage = $e->getMessage();
                         break;
                     }
                 }
 
                 if($success) {
                     flash('register_message', 'Hủy đăng ký tất cả học phần thành công', 'alert alert-success');
-                    redirect('courses/myRegistrations/' . $studentId);
                 } else {
-                    throw new Exception('Không thể hủy đăng ký tất cả học phần');
+                    flash('register_message', 'Có lỗi xảy ra: ' . $errorMessage, 'alert alert-danger');
                 }
+                redirect('courses/myRegistrations');
             } else {
-                redirect('courses');
+                redirect('courses/myRegistrations');
             }
         } catch (Exception $e) {
             error_log('Lỗi hủy đăng ký tất cả học phần: ' . $e->getMessage());
             flash('register_message', 'Không thể hủy đăng ký tất cả học phần: ' . $e->getMessage(), 'alert alert-danger');
-            redirect('courses');
+            redirect('courses/myRegistrations');
         }
     }
 

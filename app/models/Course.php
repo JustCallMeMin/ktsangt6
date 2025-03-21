@@ -90,17 +90,41 @@ class Course {
         $this->db->execute();
 
         try {
-            // Get registration ID
-            $this->db->query('SELECT MaDK FROM DangKy WHERE MaSV = :studentId');
+            // Check if course exists
+            $this->db->query('SELECT * FROM HocPhan WHERE MaHP = :courseId');
+            $this->db->bind(':courseId', $courseId);
+            $course = $this->db->single();
+            
+            if(!$course) {
+                throw new Exception('Học phần không tồn tại');
+            }
+            
+            // Check if student is registered for this course
+            $this->db->query('SELECT dk.MaDK 
+                             FROM DangKy dk 
+                             JOIN ChiTietDangKy ctdk ON dk.MaDK = ctdk.MaDK 
+                             WHERE dk.MaSV = :studentId AND ctdk.MaHP = :courseId');
             $this->db->bind(':studentId', $studentId);
+            $this->db->bind(':courseId', $courseId);
             $result = $this->db->single();
+            
+            // Check if we found a registration
+            if(!$result) {
+                throw new Exception('Bạn chưa đăng ký học phần này');
+            }
+            
             $registrationId = $result->MaDK;
 
             // Delete registration detail
             $this->db->query('DELETE FROM ChiTietDangKy WHERE MaDK = :registrationId AND MaHP = :courseId');
             $this->db->bind(':registrationId', $registrationId);
             $this->db->bind(':courseId', $courseId);
-            $this->db->execute();
+            $deleteResult = $this->db->execute();
+            
+            // Check if delete was successful
+            if($deleteResult === false) {
+                throw new Exception('Không thể xóa chi tiết đăng ký');
+            }
             
             // Increase course capacity
             $this->increaseCourseCpapacity($courseId);
@@ -114,7 +138,10 @@ class Course {
             if($result->count == 0) {
                 $this->db->query('DELETE FROM DangKy WHERE MaDK = :registrationId');
                 $this->db->bind(':registrationId', $registrationId);
-                $this->db->execute();
+                
+                if($this->db->execute() === false) {
+                    throw new Exception('Không thể xóa đăng ký');
+                }
             }
 
             // Commit transaction
@@ -126,7 +153,8 @@ class Course {
             // Rollback transaction on error
             $this->db->query('ROLLBACK');
             $this->db->execute();
-            return false;
+            error_log('Error unregistering course: ' . $e->getMessage());
+            throw $e; // Re-throw to be caught by the controller
         }
     }
 

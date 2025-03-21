@@ -103,7 +103,6 @@
                         <div class="col-md-12 text-center">
                             <button type="submit" class="btn btn-primary">Lưu Đăng Ký</button>
                             <a href="<?php echo URLROOT; ?>/courses" class="btn btn-secondary ms-2">Hủy</a>
-                            <a href="<?php echo URLROOT; ?>/courses/myRegistrations" class="btn btn-info ms-2">Trở về giỏ hàng</a>
                         </div>
                     </div>
                 </form>
