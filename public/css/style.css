@@ -1,0 +1,70 @@
+.navbar {
+    margin-bottom: 1rem;
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.img-thumbnail {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    object-position: center;
+}
+
+.student-detail-img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    object-position: center;
+}
+
+#msg-flash {
+    margin: 1rem 0;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.card {
+    margin-bottom: 1rem;
+}
+
+.jumbotron {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 0.3rem;
+}
+
+table img {
+    display: block;
+    margin: 0 auto;
+}
+
+.action-buttons .btn {
+    margin-right: 5px;
+}
+
+.page-title {
+    margin-bottom: 1.5rem;
+}
+
+img[src=""] {
+    display: none;
+}
+
+img.broken-image {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    font-size: 12px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+} 
