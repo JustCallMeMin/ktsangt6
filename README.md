@@ -7,6 +7,7 @@ A PHP MVC application for managing student information and course registration.
 - PHP 7.4 or higher
 - MySQL 5.7 or higher
 - Apache web server with mod_rewrite enabled
+- MySQL Workbench (recommended for database management)
 
 ## Installation
 
@@ -15,10 +16,11 @@ A PHP MVC application for managing student information and course registration.
 git clone <repository-url> ktsangt6
 ```
 
-2. Create a MySQL database and import the schema:
-```bash
-mysql -u root -p < database/init.sql
-```
+2. Database Setup:
+   - Open MySQL Workbench
+   - Connect to your MySQL server
+   - The application uses a database named `Test1`
+   - Ensure your MySQL user has appropriate permissions for the `Test1` database
 
 3. Configure your web server:
    - Point the document root to the `public` directory
@@ -31,6 +33,7 @@ chmod 777 public/uploads
 4. Update the configuration in `app/config/config.php`:
    - Set your database credentials
    - Update URLROOT to match your server setup
+   - Default database name is `Test1`
 
 ## Features
 
